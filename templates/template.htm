@@ -1,233 +1,505 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
     <title>Fake Reviews Detection</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
     <style>
+      :root {
+        --bg-1: #071229;
+        --bg-2: #0f2748;
+        --glass: rgba(255, 255, 255, 0.12);
+        --glass-strong: rgba(255, 255, 255, 0.2);
+        --text-strong: #f8fbff;
+        --text-soft: #d3e3f5;
+        --accent: #34d399;
+        --accent-2: #38bdf8;
+        --danger: #f87171;
+        --real-bg: rgba(52, 211, 153, 0.18);
+        --fake-bg: rgba(248, 113, 113, 0.18);
+        --field-bg: rgba(8, 20, 43, 0.72);
+        --field-border: rgba(255, 255, 255, 0.25);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        background: url(static/back.jpg) no-repeat center center fixed;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Manrope", sans-serif;
+        color: var(--text-strong);
+        background:
+          linear-gradient(120deg, rgba(7, 18, 41, 0.95), rgba(15, 39, 72, 0.9)),
+          radial-gradient(circle at 14% 18%, rgba(56, 189, 248, 0.28), transparent 42%),
+          radial-gradient(circle at 82% 78%, rgba(52, 211, 153, 0.26), transparent 38%),
+          url("/static/back.jpg") center center / cover no-repeat fixed;
       }
-      .badge-real {
-        background: #1f8b4c;
-        color: white;
-        padding: 0.45rem 0.75rem;
-        border-radius: 0.35rem;
+
+      .page-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 36px 18px 30px;
+        animation: fadeIn 0.85s ease-out;
       }
-      .badge-fake {
-        background: #bd2130;
-        color: white;
-        padding: 0.45rem 0.75rem;
-        border-radius: 0.35rem;
+
+      .headline {
+        margin-bottom: 18px;
       }
+
+      .eyebrow {
+        display: inline-block;
+        font-family: "Sora", sans-serif;
+        font-size: 0.78rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: #93c5fd;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(147, 197, 253, 0.35);
+        background: rgba(147, 197, 253, 0.1);
+      }
+
+      .headline h1 {
+        margin: 12px 0 8px;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .headline p {
+        margin: 0;
+        color: var(--text-soft);
+        max-width: 760px;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: 1.7fr 1fr;
+        gap: 20px;
+      }
+
+      .card-glass {
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(13px);
+        -webkit-backdrop-filter: blur(13px);
+        border-radius: 22px;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.28);
+        padding: 22px;
+      }
+
+      .input-title {
+        font-family: "Sora", sans-serif;
+        margin-bottom: 14px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .field-label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #e2ecf8;
+      }
+
+      .form-control {
+        background: var(--field-bg);
+        border: 1px solid var(--field-border);
+        color: #f7fbff;
+        border-radius: 12px;
+        transition: all 0.25s ease;
+      }
+
+      textarea.form-control {
+        resize: vertical;
+        min-height: 126px;
+      }
+
+      .form-control:focus {
+        color: #ffffff;
+        background: rgba(11, 24, 48, 0.9);
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.2);
+      }
+
+      .form-control option {
+        color: #e6f1fe;
+        background: #0c1b37;
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .btn-check {
+        margin-top: 14px;
+        width: 100%;
+        border: 0;
+        color: #02202b;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        border-radius: 12px;
+        padding: 0.78rem 1rem;
+        background: linear-gradient(115deg, var(--accent), var(--accent-2));
+        box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      }
+
+      .btn-check:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        box-shadow: 0 13px 28px rgba(56, 189, 248, 0.38);
+      }
+
+      .btn-check:active {
+        transform: translateY(0);
+      }
+
+      .result-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-card::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 70%);
+      }
+
+      .result-title {
+        font-family: "Sora", sans-serif;
+        margin-bottom: 14px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .loader-wrap {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        color: #c5d9f3;
+        margin-bottom: 12px;
+      }
+
+      #loader {
+        width: 28px;
+        height: 28px;
+      }
+
+      .result-banner {
+        display: none;
+        padding: 12px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        border: 1px solid transparent;
+        margin-bottom: 10px;
+        animation: slideUp 0.45s ease;
+      }
+
+      .result-real {
+        background: var(--real-bg);
+        border-color: rgba(52, 211, 153, 0.45);
+        color: #a7f3d0;
+      }
+
+      .result-fake {
+        background: var(--fake-bg);
+        border-color: rgba(248, 113, 113, 0.45);
+        color: #fecaca;
+      }
+
       .metric-line {
-        margin: 0.2rem 0;
-        color: #222;
+        display: none;
+        margin: 0.28rem 0;
+        color: #d6e8ff;
+      }
+
+      .metric-pill {
+        margin-top: 12px;
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #d2e9ff;
+      }
+
+      #error {
+        display: none;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        background: rgba(127, 29, 29, 0.32);
+        color: #fecaca;
+      }
+
+      .stagger {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: slideUp 0.55s ease forwards;
+      }
+
+      .stagger:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .stagger:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .stagger:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .stagger:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 991px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .page-shell {
+          padding-top: 24px;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .controls-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card-glass {
+          border-radius: 16px;
+          padding: 16px;
+        }
       }
     </style>
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-
   </head>
+
   <body>
-    <br>
+    <main class="page-shell">
+      <section class="headline">
+        <span class="eyebrow">AI trust engine</span>
+        <h1>Fake Reviews Detection</h1>
+        <p>
+          Submit a review with product details to classify whether it is likely genuine or manipulated.
+        </p>
+      </section>
 
+      <section class="dashboard">
+        <article class="card-glass">
+          <h2 class="input-title">Review Input</h2>
 
-	<div class = "container">
+          <div class="form-group stagger">
+            <label class="field-label" for="review_text">Review Text</label>
+            <textarea id="review_text" class="form-control" rows="5" placeholder="Paste or type review text"></textarea>
+          </div>
 
-		<div class="jumbotron">
-		  <h3 class="display-4"><b>Fake Reviews Detection</b></h3>
+          <div class="controls-grid">
+            <div class="form-group stagger">
+              <label class="field-label" for="rating">Rating</label>
+              <select class="form-control" id="rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+              </select>
+            </div>
 
-		  <div class="form-group" style = "padding : 1%">
-			<label for="exampleInputEmail1">Review Text</label>
-			<textarea id="review_text" class="form-control" rows="4" aria-describedby="emailHelp" placeholder="Paste or type review text"></textarea>
+            <div class="form-group stagger">
+              <label class="field-label" for="verified_purchase">Verified Purchase</label>
+              <select class="form-control" id="verified_purchase">
+                <option value="Y" selected>Yes</option>
+                <option value="N">No</option>
+              </select>
+            </div>
 
-		  </div>
+            <div class="form-group stagger">
+              <label class="field-label" for="product_category">Product Category</label>
+              <select class="form-control" id="product_category">
+                <option value="Apparel">Apparel</option>
+                <option value="Automotive">Automotive</option>
+                <option value="Baby">Baby</option>
+                <option value="Beauty">Beauty</option>
+                <option value="Books">Books</option>
+                <option value="Camera">Camera</option>
+                <option value="Electronics" selected>Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Grocery">Grocery</option>
+                <option value="Health & Personal Care">Health & Personal Care</option>
+                <option value="Home">Home</option>
+                <option value="Home Entertainment">Home Entertainment</option>
+                <option value="Home Improvement">Home Improvement</option>
+                <option value="Jewelry">Jewelry</option>
+                <option value="Kitchen">Kitchen</option>
+                <option value="Lawn and Garden">Lawn and Garden</option>
+                <option value="Luggage">Luggage</option>
+                <option value="Musical Instruments">Musical Instruments</option>
+                <option value="Office Products">Office Products</option>
+                <option value="Outdoors">Outdoors</option>
+                <option value="PC">PC</option>
+                <option value="Pet Products">Pet Products</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Sports">Sports</option>
+                <option value="Tools">Tools</option>
+                <option value="Toys">Toys</option>
+                <option value="Video DVD">Video DVD</option>
+                <option value="Video Games">Video Games</option>
+                <option value="Watches">Watches</option>
+                <option value="Wireless">Wireless</option>
+              </select>
+            </div>
+          </div>
 
-		  <div class="form-group" style = "width : 32%;float:left;padding-left : 1%; padding-right : 1%">
-			<label for="exampleFormControlSelect1">Rating</label>
-			<select class="form-control" id="rating">
-			  <option value = "1">1</option>
-			  <option value = "2">2</option>
-			  <option value = "3">3</option>
-			  <option value = "4">4</option>
-			  <option value = "5">5</option>
-			</select>
-		  </div>
+          <button id="submit" type="button" class="btn-check">Check Review</button>
+        </article>
 
+        <article class="card-glass result-card">
+          <h2 class="result-title">Prediction Result</h2>
+          <div id="error" class="alert"></div>
 
-		  <div class="form-group" style = "width : 32%; float:left;padding-left : 1%; padding-right : 1%">
-			<label for="exampleFormControlSelect1">Verified Purchase</label>
-			<select class="form-control" id="verified_purchase">
-			  <option value = "Y">Yes</option>
-			  <option value = "N">No</option>
+          <div id="loaderWrap" class="loader-wrap">
+            <img id="loader" src="/static/loader.gif" alt="Loading">
+            <span>Analyzing review patterns...</span>
+          </div>
 
-			</select>
-		  </div>
+          <div id="result" class="result-banner"></div>
+          <p id="confidence" class="metric-line"></p>
+          <p id="accuracy" class="metric-line"></p>
+          <span class="metric-pill">Model: BernoulliNB + Linguistic features</span>
+        </article>
+      </section>
+    </main>
 
+    <script>
+      function resetOutput() {
+        $("#error").hide().text("");
+        $("#result").hide().text("").removeClass("result-real result-fake");
+        $("#confidence").hide().text("");
+        $("#accuracy").hide().text("");
+      }
 
-		  <div class="form-group" style = "width : 32%; float:left;padding-left : 1%; padding-right : 1%">
-			<label for="exampleFormControlSelect1">Product Category</label>
-			<select class="form-control" id="product_category">
-			  <option value = "Apparel">Apparel</option>
-			  <option value = "Automotive">Automotive</option>
-			  <option value = "Baby">Baby</option>
-			  <option value = "Beauty">Beauty</option>
-			  <option value = "Books">Books</option>
-			  <option value = "Camera">Camera</option>
-			  <option value = "Electronics">Electronics</option>
-			  <option value = "Furniture">Furniture</option>
-			  <option value = "Grocery">Grocery</option>
-			  <option value = "Health & Personal Care">Health & Personal Care</option>
-			  <option value = "Home">Home</option>
-			  <option value = "Home Entertainment">Home Entertainment</option>
-			  <option value = "Home Improvement">Home Improvement</option>
-			  <option value = "Jewelry">Jewelry</option>
-			  <option value = "Kitchen">Kitchen</option>
-			  <option value = "Lawn and Garden">Lawn and Garden</option>
-			  <option value = "Luggage">Luggage</option>
-			  <option value = "Musical Instruments">Musical Instruments</option>
-			  <option value = "Office Products">Office Products</option>
-			  <option value = "Outdoors">Outdoors</option>
-			  <option value = "PC">PC</option>
-			  <option value = "Pet Products">Pet Products</option>
-			  <option value = "Shoes">Shoes</option>
-			  <option value = "Sports">Sports</option>
-			  <option value = "Tools">Tools</option>
-			  <option value = "Toys">Toys</option>
-			  <option value = "Video DVD">Video DVD</option>
-			  <option value = "Video Games">Video Games</option>
-			  <option value = "Watches">Watches</option>
-			  <option value = "Wireless">Wireless</option>
-			</select>
-		  </div>
+      function showLoader(isVisible) {
+        if (isVisible) {
+          $("#loaderWrap").css("display", "flex");
+        } else {
+          $("#loaderWrap").hide();
+        }
+      }
 
-		  <br>
+      $("#submit").click(function () {
+        var review_text = $("#review_text").val().trim();
+        var rating = $("#rating").val();
+        var verified_purchase = $("#verified_purchase").val();
+        var product_category = $("#product_category").val();
 
-		<div class="form-group" style = "padding-left : 1%; padding-right : 1%">
-			<br><br><br>
-			<a id="submit" class="btn btn-primary btn-lg" role="button" style = "color:white">Check Review</a>
-		</div>
+        resetOutput();
 
-		</div>
+        if (!review_text) {
+          $("#error").text("Review text is required.").show();
+          return;
+        }
 
+        showLoader(true);
 
-		<div class="jumbotron">
-		  <div class="form-group">
+        var data = {
+          review_text: review_text,
+          rating: rating,
+          verified_purchase: verified_purchase,
+          product_category: product_category
+        };
 
-			<h3><b>Result</b></h3>
-
-			<img id="loader" src = "static/loader.gif" style = "width : 30px;height:30px">
-
-            <div id="error" class="alert alert-danger" style="display:none"></div>
-            <h5 id="result" style="display:none"></h5>
-            <p id="confidence" class="metric-line" style="display:none"></p>
-            <p id="accuracy" class="metric-line" style="display:none"></p>
-
-		  </div>
-
-		</div>
-
-
-
-	</div>
-
-
-	<script>
-
-		$("#loader").hide();
-
-		$("#submit").click(function(){
-			var review_text = $("#review_text").val().trim();
-			var rating = $("#rating").val();
-			var verified_purchase = $("#verified_purchase").val();
-			var product_category = $("#product_category").val();
-
-            $("#error").hide().text("");
-            $("#result").hide().text("");
-            $("#confidence").hide().text("");
-            $("#accuracy").hide().text("");
-
-            if (!review_text) {
-              $("#error").text("Review text is required.").show();
-              return;
+        $.ajax({
+          type: "POST",
+          url: "/api/predict",
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+          data: JSON.stringify(data),
+          success: function (callback) {
+            if (callback.label === "FAKE") {
+              $("#result").text("Prediction: FAKE").addClass("result-fake").show();
+            } else {
+              $("#result").text("Prediction: REAL").addClass("result-real").show();
             }
 
-			$("#loader").show();
+            if (callback.confidence !== null && callback.confidence !== undefined) {
+              $("#confidence")
+                .text("Model confidence: " + (callback.confidence * 100).toFixed(2) + "%")
+                .show();
+            }
 
-			var data = {};
+            if (
+              callback.metrics &&
+              callback.metrics.bernoulli_accuracy !== undefined &&
+              callback.metrics.bernoulli_accuracy !== null
+            ) {
+              var accText =
+                "Training/Test accuracy (BernoulliNB): " +
+                callback.metrics.bernoulli_accuracy.toFixed(2) +
+                "%";
+              if (callback.metrics.svm_accuracy !== undefined && callback.metrics.svm_accuracy !== null) {
+                accText += " | SVM: " + callback.metrics.svm_accuracy.toFixed(2) + "%";
+              }
+              $("#accuracy").text(accText).show();
+            } else {
+              $("#accuracy")
+                .text("Training/Test accuracy: not available (run training once to generate metrics)")
+                .show();
+            }
 
-			data["review_text"] = review_text;
-			data["rating"] = rating;
-			data["verified_purchase"] = verified_purchase;
-			data["product_category"] = product_category;
-
-			$.ajax({
-					  type: 'POST',
-					  url: '/api/predict',
-					  dataType: 'json',
-                      contentType: 'application/json; charset=utf-8',
-					  data: JSON.stringify(data),
-					  success: function(callback) {
-						  if(callback.label === 'FAKE') {
-                            $("#result").html('<span class="badge-fake">Prediction: FAKE</span>').show();
-						  } else {
-                            $("#result").html('<span class="badge-real">Prediction: REAL</span>').show();
-						  }
-
-                          if (callback.confidence !== null && callback.confidence !== undefined) {
-                            $("#confidence").text("Model confidence: " + (callback.confidence * 100).toFixed(2) + "%").show();
-                          }
-
-                          if (callback.metrics && callback.metrics.bernoulli_accuracy !== undefined && callback.metrics.bernoulli_accuracy !== null) {
-                            var accText = "Training/Test accuracy (BernoulliNB): " + callback.metrics.bernoulli_accuracy.toFixed(2) + "%";
-                            if (callback.metrics.svm_accuracy !== undefined && callback.metrics.svm_accuracy !== null) {
-                              accText += " | SVM: " + callback.metrics.svm_accuracy.toFixed(2) + "%";
-                            }
-                            $("#accuracy").text(accText).show();
-                          } else {
-                            $("#accuracy").text("Training/Test accuracy: not available (run training once to generate metrics)").show();
-                          }
-
-						  $("#loader").hide();
-					  },
-					  error: function (jqXHR, exception) {
-                        var msg = "Prediction failed.";
-                        try {
-                          var parsed = JSON.parse(jqXHR.responseText);
-                          if (parsed.errors && parsed.errors.length > 0) {
-                            msg = parsed.errors.join(" ");
-                          }
-                        } catch (e) {
-                        }
-						$("#error").text(msg).show();
-						$("#loader").hide();
-					},
-				  });
-
-
-
-		});
-
-
-
-
-	</script>
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-
+            showLoader(false);
+          },
+          error: function (jqXHR) {
+            var msg = "Prediction failed.";
+            try {
+              var parsed = JSON.parse(jqXHR.responseText);
+              if (parsed.errors && parsed.errors.length > 0) {
+                msg = parsed.errors.join(" ");
+              }
+            } catch (e) {}
+            $("#error").text(msg).show();
+            showLoader(false);
+          }
+        });
+      });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
